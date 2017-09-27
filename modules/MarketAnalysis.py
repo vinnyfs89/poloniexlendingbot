@@ -7,6 +7,7 @@ import datetime
 import pandas as pd
 import sqlite3 as sqlite
 from sqlite3 import Error
+from modules.ExchangeApi import ApiError
 
 # Bot libs
 import modules.Configuration as Config
@@ -158,6 +159,15 @@ class MarketAnalysis(object):
         while True:
             try:
                 raw_data = self.api.return_loan_orders(cur, levels)['offers']
+                if self.api.req_per_min < 30:
+                    print("Reset requests per minute")
+                    self.api.req_per_min = 60
+            except ApiError as ex:
+                print("Caught ERR_RATE_LIMIT, sleeping capture and reducing request rate. Current"
+                      " {0}/min".format(self.api.req_per_min))
+                time.sleep(130)
+                if self.api.req_per_min >= 10:
+                    self.api.req_per_min -= 1
             except Exception as ex:
                 if self.ma_debug_log:
                     self.print_traceback(ex, "Error in returning data from exchange")
