@@ -20,7 +20,7 @@ class Bitfinex(ExchangeApi):
         self.log = log
         self.lock = threading.RLock()
         self.req_per_min = 60
-        self.req_period = 15 # seconds
+        self.req_period = 1 # seconds
         self.req_per_period = int(self.req_per_min / ( 60.0 / self.req_period))
         self.req_time_log = RingBuffer(self.req_per_period)
         self.url = 'https://api.bitfinex.com'
