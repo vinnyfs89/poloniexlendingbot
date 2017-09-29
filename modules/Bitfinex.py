@@ -19,9 +19,10 @@ class Bitfinex(ExchangeApi):
         self.cfg = cfg
         self.log = log
         self.lock = threading.RLock()
-        self.req_per_min = 60
-        self.req_period = 1 # seconds
-        self.req_per_period = int(self.req_per_min / ( 60.0 / self.req_period))
+        self.req_per_period = 1
+        # We're allowed 90 req/min, the timers aren't exact and the threading model can cause issues, so aim for ~ 70
+        self.default_req_period = 850 # milliseconds, 850 ~ 70/min
+        self.req_period = self.default_req_period # This can be changed by the MA module, so we need this to reset
         self.req_time_log = RingBuffer(self.req_per_period)
         self.url = 'https://api.bitfinex.com'
         self.key = self.cfg.get("API", "apikey", None)
@@ -45,26 +46,15 @@ class Bitfinex(ExchangeApi):
 
     @ExchangeApi.synchronized
     def limit_request_rate(self):
-        now = time.time()
-        # start checking only when request time log is full
+        now = time.time() * 1000 # milliseconds
         if len(self.req_time_log) == self.req_per_period:
             time_since_oldest_req = now - self.req_time_log[0]
-            # check if oldest request is more than self.req_period ago
             if time_since_oldest_req < self.req_period:
-                # print self.req_time_log.get()
-                # uncomment to debug
-                # print("Waiting {0} sec, {1} to keep api request rate".format(self.req_period - time_since_oldest_req,
-                #       threading.current_thread()))
-                # print("Req:{0} Oldest req:{1} Diff:{2} sec".format(now, self.req_time_log[0], time_since_oldest_req))
+                sleep = (self.req_period - time_since_oldest_req) / 1000
                 self.req_time_log.append(now + self.req_period - time_since_oldest_req)
-                time.sleep(self.req_period - time_since_oldest_req)
+                time.sleep(sleep)
                 return
-            # uncomment to debug
-            # else:
-            #     print self.req_time_log.get()
-            #     print("Not Waiting {0}".format(threading.current_thread()))
-            #     print("Req:{0} Oldest req:{1}  Diff:{2} sec".format(now, self.req_time_log[0], time_since_oldest_req))
-        # append current request time to the log, pushing out the 60th request time before it
+
         self.req_time_log.append(now)
 
     def _sign_payload(self, payload):

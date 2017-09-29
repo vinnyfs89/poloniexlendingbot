@@ -159,15 +159,17 @@ class MarketAnalysis(object):
         while True:
             try:
                 raw_data = self.api.return_loan_orders(cur, levels)['offers']
-                if self.api.req_per_min < 30:
+                if self.api.req_period > 1500:
                     print("Reset requests per minute")
-                    self.api.req_per_min = 60
+                    self.api.req_period = self.api.default_req_period
             except ApiError as ex:
-                print("Caught ERR_RATE_LIMIT, sleeping capture and reducing request rate. Current"
-                      " {0}/min".format(self.api.req_per_min))
-                time.sleep(130)
-                if self.api.req_per_min >= 10:
-                    self.api.req_per_min -= 1
+                if "429" in str(ApiError):
+                    if self.api.req_period <= 1550:
+                        self.api.req_period += 3
+                    if self.ma_debug_log:
+                        print("Caught ERR_RATE_LIMIT, sleeping capture and increasing request delay. Current"
+                              " {0}ms".format(self.api.req_period))
+                    time.sleep(130)
             except Exception as ex:
                 if self.ma_debug_log:
                     self.print_traceback(ex, "Error in returning data from exchange")
