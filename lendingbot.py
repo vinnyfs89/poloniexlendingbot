@@ -124,6 +124,8 @@ try:
                 additional_sleep = max(130.0-Lending.get_sleep_time(), 0)
                 sum_sleep = additional_sleep + Lending.get_sleep_time()
                 log.log_error('IP has been banned due to many requests. Sleeping for {} seconds'.format(sum_sleep))
+                if Config.has_option('MarketAnalysis', 'analyseCurrencies'):
+                    log.log_error('Expect this 130s ban periodically when using MarketAnalysis, it will fix itself')
                 time.sleep(additional_sleep)
             # Ignore all 5xx errors (server error) as we can't do anything about it (https://httpstatuses.com/)
             elif isinstance(ex, URLError):

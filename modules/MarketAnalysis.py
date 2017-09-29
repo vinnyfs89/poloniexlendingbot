@@ -163,7 +163,7 @@ class MarketAnalysis(object):
                     print("Reset requests per minute")
                     self.api.req_period = self.api.default_req_period
             except ApiError as ex:
-                if "429" in str(ApiError):
+                if "Error 429" in str(ex):
                     if self.api.req_period <= 1550:
                         self.api.req_period += 3
                     if self.ma_debug_log:
