@@ -74,6 +74,7 @@ class MarketAnalysis(object):
                                                     self.keep_history_seconds / 2,
                                                     60,
                                                     60 * 60 * 2))
+        self.exchange = config.get_exchange()
 
         if len(self.currencies_to_analyse) != 0:
             for currency in self.currencies_to_analyse:
@@ -159,7 +160,7 @@ class MarketAnalysis(object):
         while True:
             try:
                 raw_data = self.api.return_loan_orders(cur, levels)['offers']
-                if self.api.req_period > 1500:
+                if self.exchange.lower() == 'bitfinex' and  self.api.req_period > 1500:
                     print("Reset requests per minute")
                     self.api.req_period = self.api.default_req_period
             except ApiError as ex:
