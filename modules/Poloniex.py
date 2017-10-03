@@ -35,31 +35,24 @@ class Poloniex(ExchangeApi):
         self.log = log
         self.APIKey = self.cfg.get("API", "apikey", None)
         self.Secret = self.cfg.get("API", "secret", None)
-        self.req_per_sec = 6
-        self.req_time_log = RingBuffer(self.req_per_sec)
+        self.req_per_period = 6
+        self.default_req_period = 1000 # milliseconds
+        self.req_period = self.default_req_period # This can be changed by the MA module, so we need this to reset
+        self.req_time_log = RingBuffer(self.req_per_period)
         self.lock = threading.RLock()
         socket.setdefaulttimeout(int(Config.get("BOT", "timeout", 30, 1, 180)))
 
     @ExchangeApi.synchronized
     def limit_request_rate(self):
-        now = time.time()
-        # start checking only when request time log is full
-        if len(self.req_time_log) == self.req_per_sec:
+        now = time.time() * 1000 # milliseconds
+        if len(self.req_time_log) == self.req_per_period:
             time_since_oldest_req = now - self.req_time_log[0]
-            # check if oldest request is more than 1sec ago
-            if time_since_oldest_req < 1:
-                # print self.req_time_log.get()
-                # uncomment to debug
-                # print "Waiting %s sec to keep api request rate" % str(1 - time_since_oldest_req)
-                # print "Req: %d  6th Req: %d  Diff: %f sec" %(now, self.req_time_log[0], time_since_oldest_req)
-                self.req_time_log.append(now + 1 - time_since_oldest_req)
-                time.sleep(1 - time_since_oldest_req)
+            if time_since_oldest_req < self.req_period:
+                sleep = (self.req_period - time_since_oldest_req) / 1000
+                self.req_time_log.append(now + self.req_period - time_since_oldest_req)
+                time.sleep(sleep)
                 return
-            # uncomment to debug
-            # else:
-            #     print self.req_time_log.get()
-            #     print "Req: %d  6th Req: %d  Diff: %f sec" % (now, self.req_time_log[0], time_since_oldest_req)
-        # append current request time to the log, pushing out the 6th request time before it
+
         self.req_time_log.append(now)
 
     @ExchangeApi.synchronized
