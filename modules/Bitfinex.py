@@ -106,8 +106,10 @@ class Bitfinex(ExchangeApi):
         signed_payload = self._sign_payload(payload)
         return self._request('post', payload['request'], signed_payload, verify)
 
-    def _get(self, command):
-        request = '/{}/{}'.format(self.apiVersion, command)
+    def _get(self, command, apiVersion=None):
+        if apiVersion is None:
+            apiVersion = self.apiVersion
+        request = '/{}/{}'.format(apiVersion, command)
         return self._request('get', request)
 
     def _get_symbols(self):
@@ -353,5 +355,5 @@ class Bitfinex(ExchangeApi):
         https://bitfinex.readme.io/v2/reference#rest-public-platform-status
         """
         command = 'tickers?symbols=f' + currency
-        resp = self._get('v2', command)
+        resp = self._get(command, 'v2')
         return float(resp[0][1])
