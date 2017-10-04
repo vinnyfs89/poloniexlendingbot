@@ -346,3 +346,12 @@ class Bitfinex(ExchangeApi):
                     })
 
         return history
+
+    def get_frr(self, currency):
+        """
+        Retrieves the flash return rate for the given currency
+        https://bitfinex.readme.io/v2/reference#rest-public-platform-status
+        """
+        command = 'tickers?symbols=f' + currency
+        resp = self._get('v2', command)
+        return float(resp[0][1])
