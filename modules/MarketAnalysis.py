@@ -160,12 +160,12 @@ class MarketAnalysis(object):
         while True:
             try:
                 raw_data = self.api.return_loan_orders(cur, levels)['offers']
-                if self.exchange.lower() == 'bitfinex' and  self.api.req_period > 1500:
+                if self.api.req_period >= self.api.default_req_period * 1.5:
                     print("Reset requests per minute")
                     self.api.req_period = self.api.default_req_period
             except ApiError as ex:
-                if "Error 429" in str(ex):
-                    if self.api.req_period <= 1550:
+                if "429" in str(ex):
+                    if self.api.req_period <= self.api.default_req_period * 1.5:
                         self.api.req_period += 3
                     if self.ma_debug_log:
                         print("Caught ERR_RATE_LIMIT, sleeping capture and increasing request delay. Current"
@@ -309,15 +309,15 @@ class MarketAnalysis(object):
                 if self.ma_debug_log:
                     print("DEBUG:get_analysis_seconds: cur: {0} method:{1} rates:{2}".format(cur, method, rates))
                 return 0
-            if self.ma_debug_log:
-                print("Cur:{0}, MACD:{1:.6f}, Perc:{2:.6f}, Best:{3:.6f}"
-                      .format(cur, truncate(self.get_MACD_rate(cur, rates), 6),
-                              self.get_percentile(rates.rate0.values.tolist(), self.lending_style),
-                              rates.rate0.iloc[-1]))
             if method == 'percentile':
                 return self.get_percentile(rates.rate0.values.tolist(), self.lending_style)
             if method == 'MACD':
-                return truncate(self.get_MACD_rate(cur, rates), 6)
+                macd_rate = truncate(self.get_MACD_rate(cur, rates), 6)
+                if self.ma_debug_log:
+                    print("Cur:{0}, MACD:{1:.6f}, Perc:{2:.6f}, Best:{3:.6f}"
+                          .format(cur, macd_rate, self.get_percentile(rates.rate0.values.tolist(), self.lending_style),
+                                  rates.rate0.iloc[-1]))
+                return macd_rate
         except MarketDataException:
             if method != 'percentile':
                 print("Caught exception during {0} analysis, using percentile for now".format(method))

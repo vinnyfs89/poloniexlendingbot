@@ -20,9 +20,8 @@ class Bitfinex(ExchangeApi):
         self.log = log
         self.lock = threading.RLock()
         self.req_per_period = 1
-        # We're allowed 90 req/min, the timers aren't exact, the threading model can cause issues and bitfinex seem to
-        # have some dynamic adjustment, so aim for ~ 70. MA can reduce it if needed anyway.
-        self.default_req_period = 850 # milliseconds, 850 ~ 70/min
+        # We're allowed 60 req/min, I don't care what the docs say...
+        self.default_req_period = 1000 # milliseconds, 1000 = 60/min
         self.req_period = self.default_req_period # This can be changed by the MA module, so we need this to reset
         self.req_time_log = RingBuffer(self.req_per_period)
         self.url = 'https://api.bitfinex.com'
