@@ -256,8 +256,10 @@ def get_min_daily_rate(cur):
                 max_active_alerted[cur] = True
                 log.log('maxactive amount for ' + cur + ' set to 0, won\'t lend.')
             return False
-        if exchange == 'BITFINEX' and True:  # TODO Need cfg here instead of true
-            cur_min_daily_rate = api.get_frr(cur)
+        if exchange == 'BITFINEX' and coin_cfg[cur]['frrasmin']:
+            frr_rate = api.get_frr(cur)
+            cfg_rate = Decimal(coin_cfg[cur]['minrate'])
+            cur_min_daily_rate = frr_rate if frr_rate > cfg_rate else cfg_rate
         else:
             cur_min_daily_rate = Decimal(coin_cfg[cur]['minrate'])
         if cur not in coin_cfg_alerted:  # Only alert once per coin.
