@@ -21,8 +21,8 @@ class Bitfinex(ExchangeApi):
         self.lock = threading.RLock()
         self.req_per_period = 1
         # We're allowed 60 req/min, I don't care what the docs say...
-        self.default_req_period = 1000 # milliseconds, 1000 = 60/min
-        self.req_period = self.default_req_period # This can be changed by the MA module, so we need this to reset
+        self.default_req_period = 1000  # milliseconds, 1000 = 60/min
+        self.req_period = self.default_req_period  # This can be changed by the MA module, so we need this to reset
         self.req_time_log = RingBuffer(self.req_per_period)
         self.url = 'https://api.bitfinex.com'
         self.key = self.cfg.get("API", "apikey", None)
@@ -46,7 +46,7 @@ class Bitfinex(ExchangeApi):
 
     @ExchangeApi.synchronized
     def limit_request_rate(self):
-        now = time.time() * 1000 # milliseconds
+        now = time.time() * 1000  # milliseconds
         if len(self.req_time_log) == self.req_per_period:
             time_since_oldest_req = now - self.req_time_log[0]
             if time_since_oldest_req < self.req_period:
@@ -72,7 +72,6 @@ class Bitfinex(ExchangeApi):
 
     @ExchangeApi.synchronized
     def _request(self, method, request, payload=None, verify=True):
-        now = time.time()
         try:
             # keep the 60 request per minute limit
             self.limit_request_rate()
@@ -80,7 +79,7 @@ class Bitfinex(ExchangeApi):
             r = {}
             url = '{}{}'.format(self.url, request)
             if method == 'get':
-                r = requests.get(url, timeout=self.timeout, headers={'Connection':'close'})
+                r = requests.get(url, timeout=self.timeout, headers={'Connection': 'close'})
             else:
                 r = requests.post(url, headers=payload, verify=verify, timeout=self.timeout)
 
@@ -249,7 +248,7 @@ class Bitfinex(ExchangeApi):
         payload = {
             "currency": currency,
             "amount": str(amount),
-            "rate": str(round(float(lending_rate),10) * 36500), 
+            "rate": str(round(float(lending_rate), 10) * 36500),
             "period": int(duration),
             "direction": "lend"
         }
@@ -338,7 +337,7 @@ class Bitfinex(ExchangeApi):
                         "amount": "0.0",
                         "duration": "0.0",
                         "interest": str(amount / 0.85),
-                        "fee": str(amount-amount / 0.85),
+                        "fee": str(amount - amount / 0.85),
                         "earned": str(amount),
                         "open": Bitfinex2Poloniex.convertTimestamp(entry['timestamp']),
                         "close": Bitfinex2Poloniex.convertTimestamp(entry['timestamp'])
