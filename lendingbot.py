@@ -125,9 +125,9 @@ try:
                 sum_sleep = additional_sleep + Lending.get_sleep_time()
                 log.log_error('IP has been banned due to many requests. Sleeping for {} seconds'.format(sum_sleep))
                 if Config.has_option('MarketAnalysis', 'analyseCurrencies'):
-                    if api.req_period <= self.api.default_req_period * 1.5:
+                    if api.req_period <= api.default_req_period * 1.5:
                         api.req_period += 3
-                    if self.ma_debug_log:
+                    if Config.getboolean('MarketAnalysis', 'ma_debug_log'):
                         print("Caught ERR_RATE_LIMIT, sleeping capture and increasing request delay. Current"
                               " {0}ms".format(api.req_period))
                         log.log_error('Expect this 130s ban periodically when using MarketAnalysis, it will fix itself')
