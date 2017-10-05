@@ -3,6 +3,7 @@ import time
 # Hack to get relative imports - probably need to fix the dir structure instead but we need this at the minute for
 # pytest to work
 import os, sys, inspect
+
 currentdir = os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))
 parentdir = os.path.dirname(currentdir)
 sys.path.insert(0, parentdir)
@@ -15,22 +16,27 @@ import threading
 
 Config.init('default.cfg', Data)
 api = Bitfinex(Config, Logger())
+start_time = time.time()
 
 
 def multiple_api_queries(n):
     try:
         for i in xrange(n):
-            print 'api_query ' + str(i + 1)
-            thread1 = threading.Thread(target=api.return_open_loan_offers)
+            print 'Thread ' + str(i + 1)
+            thread1 = threading.Thread(target=call_get_open_loan_offers(i + 1))
             thread1.start()
     except Exception as e:
-        assert False, 'api_query ' + str(i + 1) + ':' + e.message
+        assert False, 'Thread ' + str(i + 1) + ':' + e.message
 
 
 # Test fast api calls
 def test_multiple_calls():
-    multiple_api_queries(200)
+    multiple_api_queries(270)
 
+
+def call_get_open_loan_offers(i):
+    api.return_open_loan_offers()
+    print 'API Call ' + str(i) + ' sec:' + str(time.time() - start_time)
 
 # def api_rate_limit(n, start):
 #     api.limit_request_rate()
