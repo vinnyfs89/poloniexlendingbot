@@ -44,7 +44,6 @@ class Bitfinex(ExchangeApi):
         """
         return str(int(time.time() * 100000))
 
-    @ExchangeApi.synchronized
     def limit_request_rate(self):
         now = time.time() * 1000  # milliseconds
         if len(self.req_time_log) == self.req_per_period:
@@ -70,11 +69,8 @@ class Bitfinex(ExchangeApi):
             "Connection": "close"
         }
 
-    @ExchangeApi.synchronized
     def _request(self, method, request, payload=None, verify=True):
         try:
-            # keep the 60 request per minute limit
-            self.limit_request_rate()
 
             r = {}
             url = '{}{}'.format(self.url, request)
@@ -97,14 +93,22 @@ class Bitfinex(ExchangeApi):
             ex.message = "{0} Requesting {1}".format(ex.message, self.url + request)
             raise ex
 
+    @ExchangeApi.synchronized
     def _post(self, command, payload=None, verify=True):
+        # keep the request per minute limit
+        self.limit_request_rate()
+
         payload = payload or {}
         payload['request'] = '/{}/{}'.format(self.apiVersion, command)
         payload['nonce'] = self._nonce
         signed_payload = self._sign_payload(payload)
         return self._request('post', payload['request'], signed_payload, verify)
 
+    @ExchangeApi.synchronized
     def _get(self, command, apiVersion=None):
+        # keep the request per minute limit
+        self.limit_request_rate()
+
         if apiVersion is None:
             apiVersion = self.apiVersion
         request = '/{}/{}'.format(apiVersion, command)
