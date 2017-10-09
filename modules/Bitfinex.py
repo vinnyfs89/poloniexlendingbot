@@ -85,7 +85,7 @@ class Bitfinex(ExchangeApi):
                                    ': The web server reported a bad gateway or gateway timeout error.')
                 elif r.status_code == 429:
                     self.increase_request_timer()
-	        raise ApiError('API Error ' + str(r.status_code) + ': ' + r.text)
+                raise ApiError('API Error ' + str(r.status_code) + ': ' + r.text)
 
             # Check in case something has gone wrong and the timer is too big
             self.reset_request_timer()
