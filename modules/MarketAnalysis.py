@@ -160,9 +160,6 @@ class MarketAnalysis(object):
         while True:
             try:
                 raw_data = self.api.return_loan_orders(cur, levels)['offers']
-                if self.api.req_period >= self.api.default_req_period * 1.5:
-                    print("Reset requests per minute")
-                    self.api.req_period = self.api.default_req_period
             except Exception as ex:
                 if self.ma_debug_log:
                     self.print_traceback(ex, "Error in returning data from exchange")

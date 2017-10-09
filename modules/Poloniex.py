@@ -36,24 +36,24 @@ class Poloniex(ExchangeApi):
         self.APIKey = self.cfg.get("API", "apikey", None)
         self.Secret = self.cfg.get("API", "secret", None)
         self.req_per_period = 6
-        self.default_req_period = 1000 # milliseconds
-        self.req_period = self.default_req_period # This can be changed by the MA module, so we need this to reset
+        self.default_req_period = 1000  # milliseconds
+        self.req_period = self.default_req_period
         self.req_time_log = RingBuffer(self.req_per_period)
         self.lock = threading.RLock()
         socket.setdefaulttimeout(int(Config.get("BOT", "timeout", 30, 1, 180)))
+        self.api_debug_log = self.cfg.getboolean("BOT", "api_debug_log")
 
-    @ExchangeApi.synchronized
     def limit_request_rate(self):
-        now = time.time() * 1000 # milliseconds
-        if len(self.req_time_log) == self.req_per_period:
-            time_since_oldest_req = now - self.req_time_log[0]
-            if time_since_oldest_req < self.req_period:
-                sleep = (self.req_period - time_since_oldest_req) / 1000
-                self.req_time_log.append(now + self.req_period - time_since_oldest_req)
-                time.sleep(sleep)
-                return
+        super(Poloniex, self).limit_request_rate()
 
-        self.req_time_log.append(now)
+    def increase_request_timer(self):
+        super(Poloniex, self).increase_request_timer()
+
+    def decrease_request_timer(self):
+        super(Poloniex, self).decrease_request_timer()
+
+    def reset_request_timer(self):
+        super(Poloniex, self).reset_request_timer()
 
     @ExchangeApi.synchronized
     def api_query(self, command, req=None):
@@ -103,6 +103,10 @@ class Poloniex(ExchangeApi):
                 ret = urllib2.urlopen(urllib2.Request('https://poloniex.com/tradingApi', post_data, headers))
                 json_ret = _read_response(ret)
                 return post_process(json_ret)
+
+            # Check in case something has gone wrong and the timer is too big
+            self.reset_request_timer()
+
         except urllib2.HTTPError as ex:
             raw_polo_response = ex.read()
             try:
@@ -113,6 +117,12 @@ class Poloniex(ExchangeApi):
                     # 502 and 520-526 Bad Gateway so response is likely HTML from Cloudflare
                     polo_error_msg = 'API Error ' + str(ex.code) + \
                                      ': The web server reported a bad gateway or gateway timeout error.'
+                elif hasattr(ex, 'code') and (ex.code == 429):
+                    self.increase_request_timer()
+                    if self.api_debug_log:
+                        print("Caught ERR_RATE_LIMIT, sleeping capture and increasing request delay. Current"
+                              " {0}ms".format(self.api.req_period))
+                    time.sleep(130)
                 else:
                     polo_error_msg = raw_polo_response
             ex.message = ex.message if ex.message else str(ex)

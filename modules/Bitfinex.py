@@ -92,7 +92,7 @@ class Bitfinex(ExchangeApi):
                 else:
                     raise ApiError('API Error ' + str(r.status_code) + ': ' + r.text)
 
-            # Check in case something has gone wrong and the timer too big
+            # Check in case something has gone wrong and the timer is too big
             self.reset_request_timer()
             return r.json()
 
