@@ -160,6 +160,12 @@ class MarketAnalysis(object):
         while True:
             try:
                 raw_data = self.api.return_loan_orders(cur, levels)['offers']
+            except ApiError as ex:
+                if '429' in str(ex):
+                    if self.ma_debug_log:
+                        print("Caught ERR_RATE_LIMIT, sleeping capture and increasing request delay. Current"
+                              " {0}ms".format(self.api.req_period))
+                    time.sleep(130)
             except Exception as ex:
                 if self.ma_debug_log:
                     self.print_traceback(ex, "Error in returning data from exchange")

@@ -119,10 +119,6 @@ class Poloniex(ExchangeApi):
                                      ': The web server reported a bad gateway or gateway timeout error.'
                 elif hasattr(ex, 'code') and (ex.code == 429):
                     self.increase_request_timer()
-                    if self.api_debug_log:
-                        print("Caught ERR_RATE_LIMIT, sleeping capture and increasing request delay. Current"
-                              " {0}ms".format(self.api.req_period))
-                    time.sleep(130)
                 else:
                     polo_error_msg = raw_polo_response
             ex.message = ex.message if ex.message else str(ex)
