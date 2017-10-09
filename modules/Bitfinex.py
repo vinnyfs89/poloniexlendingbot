@@ -20,9 +20,8 @@ class Bitfinex(ExchangeApi):
         self.log = log
         self.lock = threading.RLock()
         self.req_per_period = 1
-        # We're allowed 60 req/min, I don't care what the docs say...
         self.default_req_period = 1000  # milliseconds, 1000 = 60/min
-        self.req_period = self.default_req_period  # This can be changed by the MA module, so we need this to reset
+        self.req_period = self.default_req_period
         self.req_time_log = RingBuffer(self.req_per_period)
         self.url = 'https://api.bitfinex.com'
         self.key = self.cfg.get("API", "apikey", None)
@@ -33,6 +32,7 @@ class Bitfinex(ExchangeApi):
         self.tickerTime = 0
         self.usedCurrencies = []
         self.timeout = int(self.cfg.get("BOT", "timeout", 30, 1, 180))
+        self.api_debug_log = self.cfg.getboolean("BOT", "api_debug_log")
         # Initialize usedCurrencies
         _ = self.return_available_account_balances("lending")
 
@@ -45,16 +45,16 @@ class Bitfinex(ExchangeApi):
         return str(int(time.time() * 100000))
 
     def limit_request_rate(self):
-        now = time.time() * 1000  # milliseconds
-        if len(self.req_time_log) == self.req_per_period:
-            time_since_oldest_req = now - self.req_time_log[0]
-            if time_since_oldest_req < self.req_period:
-                sleep = (self.req_period - time_since_oldest_req) / 1000
-                self.req_time_log.append(now + self.req_period - time_since_oldest_req)
-                time.sleep(sleep)
-                return
+        super(Bitfinex, self).limit_request_rate()
 
-        self.req_time_log.append(now)
+    def increase_request_timer(self):
+        super(Bitfinex, self).increase_request_timer()
+
+    def decrease_request_timer(self):
+        super(Bitfinex, self).decrease_request_timer()
+
+    def reset_request_timer(self):
+        super(Bitfinex, self).reset_request_timer()
 
     def _sign_payload(self, payload):
         j = json.dumps(payload)
@@ -83,9 +83,17 @@ class Bitfinex(ExchangeApi):
                 if r.status_code == 502 or r.status_code in range(520, 527, 1):
                     raise ApiError('API Error ' + str(r.status_code) +
                                    ': The web server reported a bad gateway or gateway timeout error.')
+                elif r.status_code == 429:
+                    self.increase_request_timer()
+                    if self.api_debug_log:
+                        print("Caught ERR_RATE_LIMIT, sleeping capture and increasing request delay. Current"
+                              " {0}ms".format(self.api.req_period))
+                    time.sleep(130)
                 else:
                     raise ApiError('API Error ' + str(r.status_code) + ': ' + r.text)
 
+            # Check in case something has gone wrong and the timer too big
+            self.reset_request_timer()
             return r.json()
 
         except Exception as ex:

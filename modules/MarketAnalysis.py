@@ -163,14 +163,6 @@ class MarketAnalysis(object):
                 if self.api.req_period >= self.api.default_req_period * 1.5:
                     print("Reset requests per minute")
                     self.api.req_period = self.api.default_req_period
-            except ApiError as ex:
-                if "429" in str(ex):
-                    if self.api.req_period <= self.api.default_req_period * 1.5:
-                        self.api.req_period += 3
-                    if self.ma_debug_log:
-                        print("Caught ERR_RATE_LIMIT, sleeping capture and increasing request delay. Current"
-                              " {0}ms".format(self.api.req_period))
-                    time.sleep(130)
             except Exception as ex:
                 if self.ma_debug_log:
                     self.print_traceback(ex, "Error in returning data from exchange")
