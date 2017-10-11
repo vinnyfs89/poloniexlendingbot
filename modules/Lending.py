@@ -257,14 +257,14 @@ def get_min_daily_rate(cur):
                 log.log('maxactive amount for ' + cur + ' set to 0, won\'t lend.')
             return False
         if exchange == 'BITFINEX' and coin_cfg[cur]['frrasmin']:
-            frr_rate = api.get_frr(cur)
+            frr_rate = Decimal(api.get_frr(cur)) + ( Decimal(coin_cfg[cur]['frrdelta']) / 100 )
             cfg_rate = Decimal(coin_cfg[cur]['minrate'])
             cur_min_daily_rate = frr_rate if frr_rate > cfg_rate else cfg_rate
         else:
             cur_min_daily_rate = Decimal(coin_cfg[cur]['minrate'])
         if cur not in coin_cfg_alerted:  # Only alert once per coin.
             coin_cfg_alerted[cur] = True
-            log.log('Using custom mindailyrate ' + str(coin_cfg[cur]['minrate'] * 100) + '% for ' + cur)
+            log.log('Using custom mindailyrate ' + str(cur_min_daily_rate * 100) + '% for ' + cur)
     if Analysis and cur in currencies_to_analyse:
         recommended_min = Analysis.get_rate_suggestion(cur, method=analysis_method)
         if cur_min_daily_rate < recommended_min:
