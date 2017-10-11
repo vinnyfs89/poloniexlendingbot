@@ -96,7 +96,7 @@ hideCoins = True
 #frrasmin = False
 
 # The Flash Return Rate Delta (frrdelta) is a dynamic funding rate option that allows you to specify an offset from the Flash Return Rate. This only works on bitfinex and ffrasmin = TRUE
-frrdelta = 0.0001
+frrdelta = 0.0000
 
 #Syntax: ["COIN:mindailyrate:maxactiveamount:maxtolend:maxpercenttolend:maxtolendrate",...]
 #If maxactive amount is 0: stop lending this coin. in the future you'll be able to limit amount to be lent.
@@ -154,7 +154,7 @@ frrdelta = 0.0001
 #gapbottom = 20
 #gaptop = 400
 #frrasmin = False
-#frrdelta = 0.0001
+#frrdelta = 0.0000
 
 #[CLAM]
 #minloansize = 1
@@ -167,7 +167,7 @@ frrdelta = 0.0001
 #gapbottom = 10
 #gaptop = 20
 #frrasmin = False
-#frrdelta = 0.0001
+#frrdelta = 0.0000
 
 [notifications]
 notify_new_loans = False
