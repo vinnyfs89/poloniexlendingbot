@@ -8,11 +8,11 @@ secret = YourSecret
 
 [POLONIEX]
 # Full list of supported currencies
-all_currencies = STR,BTC,BTS,CLAM,DOGE,DASH,LTC,MAID,XMR,XRP,ETH,FCT
+all_currencies = STR,BTC,BTS,CLAM,DOGE,DASH,LTC,MAID,XMR,XRP,ETH,FCT,#BTG
 
 [BITFINEX]
 # Full list of supported currencies
-all_currencies = USD,BTC,BCH,ETH,XRP,IOT,XMR,LTC,OMG,ETC,EOS,DSH,ZEC
+all_currencies = USD,BTC,BCH,ETH,XRP,IOT,XMR,LTC,OMG,ETC,EOS,DSH,ZEC,#BTG
 
 [BOT]
 #Custom name of the bot, that will be displayed in html page
@@ -183,6 +183,7 @@ email_to_addresses = me@gmail.com,you@gmail.com
 slack = False
 slack_token = 1234567890abcdef
 slack_channels = #cryptocurrency,@someUser
+slack_username = Poloniex Bot
 
 telegram = False
 telegram_bot_id = 1234567890abcdef
