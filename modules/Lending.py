@@ -263,6 +263,11 @@ def get_min_daily_rate(cur):
             frr_rate = Decimal(api.get_frr(cur)) + (Decimal(coin_cfg[cur]['frrdelta']) / 100)
             cfg_rate = Decimal(coin_cfg[cur]['minrate'])
             cur_min_daily_rate = frr_rate if frr_rate > cfg_rate else cfg_rate
+            if frr_rate > cfg_rate:
+                cur_min_daily_rate = frr_rate
+                log.log("Using FRR as mindailyrate {0}% for {1}".format(cur_min_daily_rate * 100, cur))
+            else:
+                cur_min_daily_rate = cfg_rate
         else:
             cur_min_daily_rate = Decimal(coin_cfg[cur]['minrate'])
         if cur not in coin_cfg_alerted:  # Only alert once per coin.
