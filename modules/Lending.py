@@ -131,13 +131,14 @@ def notify_new_loans(sleep_time):
         if loans_provided:
             # function to return a set of ids from the api result
             # get_id_set = lambda loans: set([x['id'] for x in loans])
-            def get_id_set(loans): return set([x['id'] for x in loans])
+            def get_id_set(loans):
+                return set([x['id'] for x in loans])
             loans_amount = {}
             loans_info = {}
             for loan_id in get_id_set(new_provided) - get_id_set(loans_provided):
                 loan = [x for x in new_provided if x['id'] == loan_id][0]
                 # combine loans with the same rate
-                k = 'c'+loan['currency']+'r'+loan['rate']+'d'+str(loan['duration'])
+                k = 'c' + loan['currency'] + 'r' + loan['rate'] + 'd' + str(loan['duration'])
                 loans_amount[k] = float(loan['amount']) + (loans_amount[k] if k in loans_amount else 0)
                 loans_info[k] = loan
             # send notifications with the grouped info
@@ -259,7 +260,7 @@ def get_min_daily_rate(cur):
                 log.log('maxactive amount for ' + cur + ' set to 0, won\'t lend.')
             return False
         if exchange == 'BITFINEX' and coin_cfg[cur]['frrasmin']:
-            frr_rate = Decimal(api.get_frr(cur)) + ( Decimal(coin_cfg[cur]['frrdelta']) / 100 )
+            frr_rate = Decimal(api.get_frr(cur)) + (Decimal(coin_cfg[cur]['frrdelta']) / 100)
             cfg_rate = Decimal(coin_cfg[cur]['minrate'])
             cur_min_daily_rate = frr_rate if frr_rate > cfg_rate else cfg_rate
         else:
