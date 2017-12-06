@@ -39,6 +39,8 @@ loans_provided = {}
 gap_mode_default = ""
 scheduler = None
 exchange = None
+frrasmin = False
+frrdelta = 0.0
 
 # limit of orders to request
 loanOrdersRequestLimit = {}
