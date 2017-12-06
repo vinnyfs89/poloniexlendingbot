@@ -268,7 +268,7 @@ def get_frr_or_min_daily_rate(cur):
         frrasmin = coin_cfg[cur]['frrasmin']
         frrdelta = Decimal(coin_cfg[cur]['frrdelta']) / 100
     else:
-        min_daily_rate = Decimal(Config.get("BOT", "mindailyrate", None, 0.003, exchangeMax)) / 100
+        min_daily_rate = Decimal(Config.get("BOT", "mindailyrate", None, 0.003, 5)) / 100
         frrasmin = Config.getboolean('BOT', 'frrasmin', False)
         frrdelta = Decimal(Config.get('BOT', 'frrdelta', 0.0000))
 
