@@ -268,8 +268,9 @@ def get_frr_or_min_daily_rate(cur):
         frrasmin = coin_cfg[cur]['frrasmin']
         frrdelta = Decimal(coin_cfg[cur]['frrdelta']) / 100
     else:
-        # We just use the global values if we reach here
-        pass
+        min_daily_rate = Decimal(Config.get("BOT", "mindailyrate", None, 0.003, exchangeMax)) / 100
+        frrasmin = Config.getboolean('BOT', 'frrasmin', False)
+        frrdelta = Decimal(Config.get('BOT', 'frrdelta', 0.0000))
 
     if exchange == 'BITFINEX' and frrasmin:
         frr_rate = Decimal(api.get_frr(cur)) + frrdelta
