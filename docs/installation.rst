@@ -64,6 +64,24 @@ To download the bot you can either:
 
         [Install]
         WantedBy=multi-user.target
+        
+    To store logs :
+    
+    .. code-block:: text
+
+        [Unit]
+        Description=LendingBot service
+        After=network.target
+
+        [Service]
+        Type=simple
+        ExecStart=/usr/bin/python <INSTALLATION DIRECTORY>/lendingbot.py  > <INSTALLATION DIRECTORY>/lendingbot.log 2>&1
+        WorkingDirectory=<INSTALLATION DIRECTORY>
+        RestartSec=10
+        Restart=on-failure
+
+        [Install]
+        WantedBy=multi-user.target
 
     Credit to GitHub user utdrmac.
 
