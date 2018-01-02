@@ -66,10 +66,25 @@ To download the bot you can either:
         WantedBy=multi-user.target
 
     Credit to GitHub user utdrmac.
+    
+    
+    The permission on the unit file needs to be set to 644 :
+    
+    ```
+       sudo chmod 644 /lib/systemd/system/lendingbot.service
+    ```
 
     Modify the ExecStart and WorkingDirectory to match your setup.
+    
+    First you need to configure systemd:
+    ```
+        sudo systemctl daemon-reload
+    ```
 
-    Enable the service using ``sudo systemctl enable lendingbot.service``
+    Enable the service using the command below:
+    ```
+        sudo systemctl enable lendingbot.service
+    ```
 
 * OSx:
 
