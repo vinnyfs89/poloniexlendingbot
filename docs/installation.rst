@@ -76,7 +76,7 @@ To download the bot you can either:
 
     Modify the ExecStart and WorkingDirectory to match your setup.
     
-    First you need to configure systemd:
+    First you need to configure systemd (depending on your OS):
     ```
         sudo systemctl daemon-reload
     ```
