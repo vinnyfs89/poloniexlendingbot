@@ -68,7 +68,7 @@ To download the bot you can either:
     Credit to GitHub user utdrmac.
     
     
-    The permission on the unit file needs to be set to 644 :
+    The permission on the unit file may need to be set to 644 (depending on your OS) :
     
     ```
        sudo chmod 644 /lib/systemd/system/lendingbot.service
